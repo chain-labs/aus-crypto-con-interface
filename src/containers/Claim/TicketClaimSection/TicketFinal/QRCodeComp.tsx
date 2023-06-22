@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import QRCode from 'react-qr-code'
 import Spinner from '../../components/Spinner'
-import LitJsSdk from '@lit-protocol/sdk-browser'
+import * as LitJsSdk from '@lit-protocol/lit-node-client'
 import { useAuth } from '@arcana/auth-react'
 import { getNetwork, TOKEN_NAME } from '@/utils/constants'
 import { ethers } from 'ethers'
@@ -43,7 +43,9 @@ const QRCodeComp = ({ qrData, tokenId }: { qrData: any; tokenId: string }) => {
   }
 
   const handleDecrypt = async (dataCid, signature) => {
-    const litClient = new LitJsSdk.LitNodeClient()
+    const litClient = new LitJsSdk.LitNodeClient({
+      litNetwork: 'serrano',
+    })
     await litClient.connect()
     const dataRes = await axios.get(
       `https://simplr.mypinata.cloud/ipfs/${dataCid}`,

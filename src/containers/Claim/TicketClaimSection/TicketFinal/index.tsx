@@ -29,7 +29,7 @@ const TicketFinal = ({ qrData }: { qrData: any }) => {
   const [loading, setLoading] = useState(true)
   const auth = useAuth()
   useEffect(() => {
-    if (tokenId) {
+    if (tokenId != undefined && tokenId != '') {
       const setTicketDetails = async () => {
         const res = await client.query({
           query: FETCH_REVEALED,

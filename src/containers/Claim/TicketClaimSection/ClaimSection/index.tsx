@@ -1,6 +1,6 @@
 import { useAuth } from '@arcana/auth-react'
 import React, { useEffect, useState } from 'react'
-import LitJsSdk from '@lit-protocol/sdk-browser'
+import * as LitJsSdk from '@lit-protocol/lit-node-client'
 import { QueryProps } from '../../types'
 import {
   ClaimTicketRequestBody,
@@ -53,7 +53,9 @@ const ClaimSection = ({
 
   const handleEncryptandPin = async () => {
     // Initialize Lit Protocol SDK
-    const litClient = new LitJsSdk.LitNodeClient()
+    const litClient = new LitJsSdk.LitNodeClient({
+      litNetwork: 'serrano',
+    })
     await litClient.connect()
 
     // Fetch event owner address from Subgrqph to be used for access control condition

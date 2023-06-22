@@ -1,6 +1,7 @@
-import LitJsSdk from '@lit-protocol/sdk-browser'
-
-const client = new LitJsSdk.LitNodeClient()
+import * as LitJsSdk from '@lit-protocol/lit-node-client'
+const client = new LitJsSdk.LitNodeClient({
+  litNetwork: 'serrano',
+})
 
 class Lit {
   private litNodeClient

@@ -6,7 +6,8 @@ const nextConfig = {
       'ik.imagekit.io',
       'lh3.googleusercontent.com',
       'nftstorage.link',
-      'ts-production.imgix.net',
+      'auscryptocon.com',
+      'simplr.mypinata.cloud',
     ],
   },
   webpack: (config) => {

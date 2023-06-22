@@ -2,11 +2,11 @@ import { client } from '@/components/ApolloClient'
 import { FormData } from 'nft.storage'
 import { FETCH_TREE_CID_QUERY } from '@/graphql/query/fetchTreeCid'
 import axios from 'axios'
-import LitJsSdk from '@lit-protocol/sdk-browser'
+import * as LitJsSdk from '@lit-protocol/lit-node-client'
 import { BytesLike, ethers } from 'ethers'
 import { QueryProps } from './types'
 import { RELAY_TASK_CHECK_ENDPOINT, SERVER_ENDPOINT } from '@/utils/constants'
-
+import { ethConnect } from '@lit-protocol/lit-node-client'
 export const FETCH_TREE_CID = async (id: string) => {
   const { data } = await client.query({
     query: FETCH_TREE_CID_QUERY,
@@ -20,6 +20,7 @@ export const FETCH_TREE_CID = async (id: string) => {
 
 export const getMerkleHashes = async (cid: string) => {
   const url = `https://simplr.mypinata.cloud/ipfs/${cid}`
+  console.log('Inside getmerklehashes:', cid)
   const { data } = await axios.get(url)
   return JSON.parse(Object.keys(data)[0])
 }
@@ -49,10 +50,13 @@ export const verifyQueryDetails = async (query: QueryProps, cid: string) => {
 
 export const getSignature = async (auth) => {
   const provider = new ethers.providers.Web3Provider(auth.provider)
-  const authSig = await LitJsSdk.signAndSaveAuthMessage({
+
+  const authSig = await ethConnect.signAndSaveAuthMessage({
     web3: provider,
-    account: auth.user?.address,
+    account: auth.user?.address.toLowerCase(),
     chainId: 80001,
+    resources: '',
+    expiration: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(),
   })
   return authSig
 }

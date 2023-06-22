@@ -15,7 +15,7 @@
     "@arcana/auth": "^1.0.4",
     "@arcana/auth-react": "^0.0.2",
     "@gelatonetwork/relay-sdk": "^3.1.0",
-    "@lit-protocol/sdk-browser": "^1.1.242",
+    "@lit-protocol/lit-node-client": "^2.2.25",
     "@next/font": "13.1.6",
     "@rainbow-me/rainbowkit": "0.5.0",
     "@reduxjs/toolkit": "^1.9.2",

@@ -21,8 +21,11 @@ const VerifyDetailsSection = ({
 
   useEffect(() => {
     if (query?.batchid) {
+      console.log('Query present')
       FETCH_TREE_CID(query?.batchid).then((data) => {
         const hashCID = data?.batches?.[0]?.cid
+        console.log('DATA FROM SUBGRAPH:', data)
+        console.log('HASHCID FROM SUBGRAPH:', hashCID)
         if (hashCID) {
           verifyQueryDetails(query, hashCID).then((data) => {
             setVerified(data)

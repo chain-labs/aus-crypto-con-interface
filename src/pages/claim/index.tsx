@@ -1,7 +1,15 @@
-import ClaimComponent from '@/containers/Claim'
 import { QueryProps } from '@/containers/Claim/types'
+import { wrapper } from '@/redux/store'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
+
+const ClaimComponent = dynamic(
+  () => import('@/containers/Claim').then((res) => res.default),
+  {
+    ssr: false,
+  },
+)
 
 const ClaimPage = () => {
   const router = useRouter()
@@ -30,4 +38,4 @@ const ClaimPage = () => {
   return <ClaimComponent query={query} />
 }
 
-export default ClaimPage
+export default wrapper.withRedux(ClaimPage)

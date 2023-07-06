@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import DottedCrumb from '../components/DottedCrumb'
 import RoundedStep from '../components/RoundedStep'
-import ConnectArcana from './ConnectArcana.tsx'
 import { STEPS } from '../constants'
 import { QueryProps } from '../types'
 import VerifyDetailsSection from './VerifyDetailsSection'
 import TicketFinal from './TicketFinal'
 import ClaimSection from './ClaimSection'
 import { useAuth } from '@arcana/auth-react'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSDKSelector } from '@/redux/wallet'
+import ConnectWallet from './ConnectWallet'
 
 const TicketClaimSection = ({ query }: { query: QueryProps }) => {
   const [step, setStep] = useState<number>(STEPS.VERIFY_URL)
@@ -16,18 +18,14 @@ const TicketClaimSection = ({ query }: { query: QueryProps }) => {
 
   const auth = useAuth()
 
-  useEffect(() => {
-    if (!auth.loading) {
-      auth.logout()
-    }
-  }, [auth.loading])
+  const SDK = useAppSelector(walletSDKSelector)
 
   const getClaimComponent = (step) => {
     if (step === STEPS.VERIFY_URL) {
       return <VerifyDetailsSection query={query} setStep={setStep} />
     } else if (step === STEPS.CONNECT_WALLET) {
       return (
-        <ConnectArcana
+        <ConnectWallet
           setStep={setStep}
           subscribe={subscribe}
           setSubscribe={setSubscribe}

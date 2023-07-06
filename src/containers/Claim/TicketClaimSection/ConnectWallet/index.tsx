@@ -6,8 +6,10 @@ import If from '@/components/If'
 import { STEPS } from '../../constants'
 import Image from 'next/image'
 import { TOKEN_NAME } from '@/utils/constants'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSDKSelector, walletSelector } from '@/redux/wallet'
 
-const ConnectArcana = ({
+const ConnectWallet = ({
   setStep,
   subscribe,
   setSubscribe,
@@ -18,7 +20,11 @@ const ConnectArcana = ({
 }) => {
   const auth = useAuth()
 
-  const [provider, setProvider] = useState<providers.Web3Provider>()
+  const wallet = useAppSelector(walletSelector)
+
+  const [provider, setProvider] = useState<providers.Web3Provider>(
+    wallet.provider,
+  )
   const [signer, setSigner] = useState<providers.JsonRpcSigner>()
   const [user, setUser] = useState<string>()
   const [loggingIn, setLoggingIn] = useState(false)
@@ -26,15 +32,14 @@ const ConnectArcana = ({
   const handleConnect = async (e) => {
     e.preventDefault()
     setLoggingIn(true)
-    const arcanaProvider = await auth.loginWithSocial('google')
-    const provider = new ethers.providers.Web3Provider(arcanaProvider)
+    wallet.SDK.connect()
     const signer = provider.getSigner()
     setSigner(signer)
     setProvider(provider)
   }
 
   const handleLogout = () => {
-    auth.logout()
+    wallet.SDK.disconnect()
     setProvider(null)
     setSigner(null)
     setUser('')
@@ -151,4 +156,4 @@ const ConnectArcana = ({
   )
 }
 
-export default ConnectArcana
+export default ConnectWallet

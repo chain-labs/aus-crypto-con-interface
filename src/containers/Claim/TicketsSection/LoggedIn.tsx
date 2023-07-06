@@ -12,6 +12,8 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import Spinner from '../components/Spinner'
 import TicketModal from './TicketModal'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 const LoggedIn = () => {
   const [userTickets, setUserTickets] = useState<ITicket[]>([])
@@ -28,9 +30,8 @@ const LoggedIn = () => {
       variables: { address: CONTRACT_ADDRESS },
     })
 
-    const { data } = res
-    const isRevealed = !!data?.simplrEvents?.[0]?.isRevealed
-    const ticketURI = data?.simplrEvents?.[0]?.ticketURI
+    const isRevealed = !!res?.data?.simplrEvents?.[0]?.isRevealed
+    const ticketURI = res?.data?.simplrEvents?.[0]?.ticketURI
     const ticketCid = ticketURI?.split('//')[1]
     setTicketURI(`https://nftstorage.link/ipfs/${ticketCid}`)
     setRevealed(isRevealed)
@@ -40,7 +41,8 @@ const LoggedIn = () => {
     fetchRevealed().then(() => setLoading(false))
   }, [])
 
-  const auth = useAuth()
+  // const auth = useAuth()
+  const wallet = useAppSelector(walletSelector)
 
   const getHolderTickets = async (address) => {
     const res = await client.query({
@@ -50,15 +52,15 @@ const LoggedIn = () => {
         first: 10,
       },
     })
-    const tickets = res.data?.holders?.[0]?.tickets
+    const tickets = res?.data?.holders?.[0]?.tickets
     setUserTickets(tickets)
   }
 
   useEffect(() => {
-    if (auth.user?.address) {
-      getHolderTickets(auth.user.address)
+    if (wallet.user?.address) {
+      getHolderTickets(wallet.user.address)
     }
-  }, [auth.user])
+  }, [wallet.user])
 
   useEffect(() => {
     if (typeof window != undefined) {

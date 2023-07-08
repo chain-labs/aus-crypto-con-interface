@@ -3,16 +3,8 @@ import { ArrowCycle, GoogleFill } from 'akar-icons'
 import React, { useEffect, useState } from 'react'
 import Spinner from '../components/Spinner'
 import LoggedIn from './LoggedIn'
-import dynamic from 'next/dynamic'
 import { useAppSelector } from '@/redux/hooks'
 import { walletSelector } from '@/redux/wallet'
-
-const SocialLoginDynamic = dynamic(
-  () => import('@/components/scw').then((res) => res.default),
-  {
-    ssr: false,
-  },
-)
 
 const TicketsSection = () => {
   const [loggingIn, setLoggingIn] = useState(false)

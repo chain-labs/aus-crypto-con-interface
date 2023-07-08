@@ -100,6 +100,8 @@ const useBiconomyWallet = (options: Configs) => {
     socialLoginSDK.hideWallet()
     setProvider(undefined)
     setAccount(undefined)
+    localStorage.removeItem('openlogin_store')
+    localStorage.removeItem('Web3Auth-cachedAdapter')
     setScwAddress('')
   }
 
@@ -107,7 +109,8 @@ const useBiconomyWallet = (options: Configs) => {
     if (!socialLoginSDK && connectWeb3 && disconnectWeb3) {
       const sdk = new SocialLogin()
       setSocialLoginSDK(sdk)
-      sdk.init(options).then(() => {
+      sdk.init(options).then((data) => {
+        console.log('initted', data)
         dispatch(
           setSDK({
             sdk: sdk,

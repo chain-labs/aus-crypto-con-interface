@@ -17,6 +17,10 @@ import If from '@/components/If'
 import TicketsSection from './TicketsSection'
 import useBiconomyWallet from '@/components/useBiconomyWallet'
 import { ethers } from 'ethers'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
+import UserWelcome from './components/UserWelcome'
+import { Wallet } from 'akar-icons'
 
 // const provider = new AuthProvider(`${ARCANA_APP_ADDRESS}`, {
 //   position: 'right',
@@ -43,6 +47,8 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
     network: TEST_NETWORK ? 'testnet' : 'mainnet',
   })
 
+  const wallet = useAppSelector(walletSelector)
+
   useEffect(() => {
     // console.log('provider:', provider)
     console.log('Network:', getNetwork().chainId)
@@ -58,7 +64,19 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
       bg-slate-200
       `}
     >
-      {/* <ProvideAuth provider={provider}> */}
+      <If
+        condition={!!wallet.provider}
+        then={
+          <div
+            className="fixed bottom-4 right-4 rounded-full bg-blue-700 px-4 py-4"
+            onClick={() => {
+              wallet.SDK.sdk.showWallet()
+            }}
+          >
+            <Wallet strokeWidth={2} size={36} />
+          </div>
+        }
+      />
       <div className="flex flex-1 flex-col pb-6">
         <div className="container flex items-center justify-between bg-white py-1 px-1 shadow-md sm:px-8 sm:py-2">
           <a
@@ -95,9 +113,11 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
                 </h1>
               }
               else={
-                <h1 className="text-center text-5xl font-bold text-black">
-                  Claim {TOKEN_NAME}
-                </h1>
+                <div>
+                  <div className="text-center text-5xl font-bold text-black">
+                    Claim {TOKEN_NAME}
+                  </div>
+                </div>
               }
             />
           </div>
@@ -107,8 +127,8 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
             else={<TicketsSection />}
           />
         </div>
+        d
       </div>
-      {/* </ProvideAuth> */}
     </div>
   )
 }

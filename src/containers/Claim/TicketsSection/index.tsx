@@ -37,11 +37,11 @@ const TicketsSection = () => {
     setReady(isReady)
   }, [wallet.SDK?.sdk])
 
-  // useEffect(() => {
-  //   if (!auth.loading) {
-  //     auth.logout()
-  //   }
-  // }, [auth.loading])
+  useEffect(() => {
+    if (loggingIn && wallet.user.name) {
+      setLoggingIn(false)
+    }
+  }, [wallet.user.name])
 
   if (!ready) {
     return (

@@ -13,6 +13,12 @@ const ClaimComponent = dynamic(
 
 const ClaimPage = () => {
   const router = useRouter()
+
+  useEffect(() => {
+    localStorage.removeItem('openlogin_store')
+    localStorage.removeItem('Web3Auth-cachedAdapter')
+  }, [])
+
   const [query, setQuery] = useState<QueryProps>({
     firstname: '',
     lastname: '',

@@ -1,10 +1,11 @@
 import If from '@/components/If'
-import { useAuth } from '@arcana/auth-react'
 import { ChevronRight } from 'akar-icons'
 import React, { useState } from 'react'
 import { getSignature } from '../../utils'
 import ClaimStepItem from './components/ClaimStepItem'
 import { CLAIM_STEPS } from './constants'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 interface Props {
   currentStep: number
@@ -19,14 +20,14 @@ const SignatureStep = ({
   signature,
   setSignature,
 }: Props) => {
-  const auth = useAuth()
+  const wallet = useAppSelector(walletSelector)
   const [waitingForUser, setWaitingForUser] = useState(true)
 
   const handleSignature = async (e) => {
     e.preventDefault()
     setWaitingForUser(false)
     setCurrentStep(CLAIM_STEPS.GET_SIGNATURE)
-    const signature = await getSignature(auth)
+    const signature = await getSignature(wallet)
     setSignature(signature)
     setCurrentStep(CLAIM_STEPS.ENCRYPTING)
   }

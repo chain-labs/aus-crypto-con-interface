@@ -9,7 +9,8 @@ import { useAppDispatch } from '@/redux/hooks'
 import {
   setSDK,
   setProvider as setWalletProvider,
-  setUser,
+  setWalletUser,
+  logoutUser,
 } from '@/redux/wallet'
 
 interface Configs {
@@ -20,6 +21,7 @@ interface Configs {
 const useBiconomyWallet = (options: Configs) => {
   const [provider, setProvider] = useState<any>()
   const [account, setAccount] = useState<string>()
+  const [userInfo, setUserInfo] = useState({})
   const [smartAccount, setSmartAccount] = useState<SmartAccount | null>(null)
   const [scwAddress, setScwAddress] = useState('')
   const [scwLoading, setScwLoading] = useState(false)
@@ -30,14 +32,22 @@ const useBiconomyWallet = (options: Configs) => {
   const connectWeb3 = useCallback(
     async (SDK = socialLoginSDK) => {
       if (typeof window === 'undefined') return
-      console.log({ ssss: SDK })
       if (SDK?.provider) {
         const web3Provider = new ethers.providers.Web3Provider(SDK.provider)
         setProvider(web3Provider)
         dispatch(setWalletProvider(web3Provider))
         const accounts = await web3Provider.listAccounts()
         setAccount(accounts[0])
-        dispatch(setUser(accounts[0]))
+        const userInfo = await SDK.getUserInfo()
+
+        dispatch(
+          setWalletUser({
+            address: accounts[0],
+            email: userInfo.email,
+            name: userInfo.name,
+            profileImage: userInfo.profileImage,
+          }),
+        )
         return
       }
       if (SDK) {
@@ -56,7 +66,7 @@ const useBiconomyWallet = (options: Configs) => {
 
   // if wallet already connected close widget
   useEffect(() => {
-    console.log('hidelwallet')
+    console.log('hide wallet')
     if (socialLoginSDK && socialLoginSDK.provider) {
       socialLoginSDK.hideWallet()
     }
@@ -78,10 +88,14 @@ const useBiconomyWallet = (options: Configs) => {
   }, [account, connectWeb3, socialLoginSDK])
 
   const disconnectWeb3 = async () => {
+    console.log('lugging oot')
+    dispatch(logoutUser())
+
     if (!socialLoginSDK || !socialLoginSDK.web3auth) {
       console.error('Web3Modal not initialized.')
       return
     }
+
     await socialLoginSDK.logout()
     socialLoginSDK.hideWallet()
     setProvider(undefined)
@@ -90,19 +104,18 @@ const useBiconomyWallet = (options: Configs) => {
   }
 
   useEffect(() => {
-    if (socialLoginSDK) {
-      disconnectWeb3()
-    } else {
+    if (!socialLoginSDK && connectWeb3 && disconnectWeb3) {
       const sdk = new SocialLogin()
       setSocialLoginSDK(sdk)
-      dispatch(
-        setSDK({
-          connect: connectWeb3,
-          disconnect: disconnectWeb3,
-          sdk: sdk,
-        }),
-      )
-      sdk.init(options)
+      sdk.init(options).then(() => {
+        dispatch(
+          setSDK({
+            sdk: sdk,
+            connect: connectWeb3,
+            disconnect: disconnectWeb3,
+          }),
+        )
+      })
     }
   }, [socialLoginSDK])
 

@@ -5,9 +5,10 @@ import Spinner from '../components/Spinner'
 import LitJsSdk from '@lit-protocol/sdk-browser'
 import axios from 'axios'
 import { getSignature, utf8ToHex } from '../utils'
-import { useAuth } from '@arcana/auth-react'
 import { CONTRACT_ADDRESS, getNetwork } from '@/utils/constants'
 import { ethers } from 'ethers'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 interface Props {
   modalData: any
@@ -18,7 +19,7 @@ const QRCodeContent = ({ modalData }: Props) => {
   const [loading, setLoading] = useState(true)
   const [loadingText, setLoadingText] = useState('Generating QR Code')
 
-  const auth = useAuth()
+  const wallet = useAppSelector(walletSelector)
 
   const onImageDownload = () => {
     const svg = document.getElementById('QRCode')
@@ -55,7 +56,7 @@ const QRCodeContent = ({ modalData }: Props) => {
     )
     const data = dataRes.data
     setLoadingText('Verifying your details...')
-    const authSig = await getSignature(auth)
+    const authSig = await getSignature(wallet)
     const { data: encryptedString } = await axios({
       url: `https://simplr.mypinata.cloud/ipfs/${data?.secret?.encryptedStringHash}`,
       method: `get`,
@@ -73,11 +74,9 @@ const QRCodeContent = ({ modalData }: Props) => {
   }
 
   const handleQrGenerate = async (details) => {
-    const concatenatedMessage = `${details?.emailid}-${auth.user.address}-${modalData?.tokenId}-${CONTRACT_ADDRESS}`
+    const concatenatedMessage = `${details?.emailid}-${wallet.user.address}-${modalData?.tokenId}-${CONTRACT_ADDRESS}`
     const message = utf8ToHex(concatenatedMessage)
-    const arcanaProvider = auth.provider
-    const provider = new ethers.providers.Web3Provider(arcanaProvider)
-    const signer = provider.getSigner()
+    const signer = wallet.provider?.getSigner()
     const signature = await signer.signMessage(message)
     setLoadingText('Finalizing...')
     const qrCodeData = {

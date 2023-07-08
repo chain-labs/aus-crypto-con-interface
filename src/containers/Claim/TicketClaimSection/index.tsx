@@ -6,7 +6,6 @@ import { QueryProps } from '../types'
 import VerifyDetailsSection from './VerifyDetailsSection'
 import TicketFinal from './TicketFinal'
 import ClaimSection from './ClaimSection'
-import { useAuth } from '@arcana/auth-react'
 import { useAppSelector } from '@/redux/hooks'
 import { walletSDKSelector } from '@/redux/wallet'
 import ConnectWallet from './ConnectWallet'
@@ -15,8 +14,6 @@ const TicketClaimSection = ({ query }: { query: QueryProps }) => {
   const [step, setStep] = useState<number>(STEPS.VERIFY_URL)
   const [qrData, setQrData] = useState({})
   const [subscribe, setSubscribe] = useState<boolean>(true)
-
-  const auth = useAuth()
 
   const SDK = useAppSelector(walletSDKSelector)
 

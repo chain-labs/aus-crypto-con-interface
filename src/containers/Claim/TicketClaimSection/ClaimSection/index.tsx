@@ -1,4 +1,3 @@
-import { useAuth } from '@arcana/auth-react'
 import React, { useEffect, useState } from 'react'
 import LitJsSdk from '@lit-protocol/sdk-browser'
 import { QueryProps } from '../../types'
@@ -24,6 +23,8 @@ import FinalStep from './FinalStep'
 import FETCH_HOLDER_TICKETS from '@/graphql/query/fetchHolderTickets'
 import { toast } from 'react-hot-toast'
 import { CONTRACT_ADDRESS } from '@/utils/constants_admin'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 const ClaimSection = ({
   query,
@@ -36,12 +37,13 @@ const ClaimSection = ({
   setQrData: (any) => void
   subscribe: boolean
 }) => {
-  const auth = useAuth()
   const [signature, setSignature] = useState()
   const [currentStep, setCurrentStep] = useState(CLAIM_STEPS.GET_SIGNATURE)
   const [secretHash, setSecretHash] = useState(null)
   const [taskId, setTaskId] = useState('')
   const [mintFailed, setMintFailed] = useState(false)
+
+  const wallet = useAppSelector(walletSelector)
 
   useEffect(() => {
     if (currentStep === CLAIM_STEPS.ENCRYPTING) {
@@ -68,7 +70,7 @@ const ClaimSection = ({
 
     // Define access control conditions
     const accessControlConditions = getAccessControlConditions([
-      auth.user.address,
+      wallet.user.address,
       eventOwnerAddress,
       SIMPLR_ADDRESS,
     ])
@@ -146,14 +148,14 @@ const ClaimSection = ({
               .query({
                 query: FETCH_HOLDER_TICKETS,
                 variables: {
-                  id: auth.user.address,
+                  id: wallet.user.address,
                   first: 1,
                 },
               })
               .then((res) => {
                 const tokenId = res.data?.holders[0]?.tickets[0].tokenId
                 const body: ClaimTicketRequestBody = {
-                  accountAddress: auth.user.address,
+                  accountAddress: wallet.user.address,
                   claimTimestamp: `${Math.abs(
                     new Date(task?.executionDate).getTime() / 1000,
                   )}`,

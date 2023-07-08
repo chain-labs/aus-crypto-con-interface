@@ -6,7 +6,6 @@ import {
   SERVER_ENDPOINT,
   TOKEN_NAME,
 } from '@/utils/constants'
-import { useAuth } from '@arcana/auth-react'
 import { BigNumber, ethers } from 'ethers'
 import React, { useEffect, useState } from 'react'
 import ClaimStepItem from './components/ClaimStepItem'
@@ -23,6 +22,8 @@ import {
 import { ChevronRight } from 'akar-icons'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 interface Props {
   currentStep: number
@@ -62,16 +63,13 @@ const MintingStep = ({
     })
   }, [])
 
-  const auth = useAuth()
-
+  const wallet = useAppSelector(walletSelector)
   const handleTicketMinting = async (e) => {
     e.preventDefault()
     setWaitingForUser(false)
 
     setMinting(true)
-    const arcanaProvider = auth.provider
-    const provider = new ethers.providers.Web3Provider(arcanaProvider)
-    const signer = provider.getSigner()
+    const signer = wallet.provider?.getSigner()
     const { chainId } = getNetwork()
     const targetAddress = CONTRACT_ADDRESS
     const abi = [
@@ -83,7 +81,7 @@ const MintingStep = ({
     const contract = new ethers.Contract(targetAddress, abi, signer)
 
     const { data } = await contract.populateTransaction.mintTicket(
-      auth.user.address,
+      wallet.user.address,
       BigNumber.from(query.batchid),
       hashQueryData(query),
       secretHash,
@@ -94,7 +92,7 @@ const MintingStep = ({
       chainId: parseInt(chainId),
       target: targetAddress,
       data,
-      user: auth.user.address,
+      user: wallet.user.address,
     }
     const relay = new GelatoRelay()
 
@@ -102,7 +100,7 @@ const MintingStep = ({
     if (pingRes.data === 'Server is Running') {
       const relayResponse = await relay.sponsoredCallERC2771(
         request,
-        provider,
+        wallet.provider,
         GELATO_API_KEY,
       )
 

@@ -6,7 +6,6 @@ import FETCH_HOLDER_TICKETS, {
 import FETCH_REVEALED from '@/graphql/query/fetchRevealed'
 import { TOKEN_NAME } from '@/utils/constants'
 import { CONTRACT_ADDRESS } from '@/utils/constants_admin'
-import { useAuth } from '@arcana/auth-react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -14,6 +13,8 @@ import Spinner from '../components/Spinner'
 import TicketModal from './TicketModal'
 import { useAppSelector } from '@/redux/hooks'
 import { walletSelector } from '@/redux/wallet'
+import { OpenEnvelope } from 'akar-icons'
+import UserWelcome from '../components/UserWelcome'
 
 const LoggedIn = () => {
   const [userTickets, setUserTickets] = useState<ITicket[]>([])
@@ -41,7 +42,6 @@ const LoggedIn = () => {
     fetchRevealed().then(() => setLoading(false))
   }, [])
 
-  // const auth = useAuth()
   const wallet = useAppSelector(walletSelector)
 
   const getHolderTickets = async (address) => {
@@ -79,7 +79,8 @@ const LoggedIn = () => {
           />
         }
       />
-      <h2 className="mt-4 mb-4 text-3xl font-semibold">Your {TOKEN_NAME}</h2>
+      <UserWelcome />
+      <h2 className="mt-3 mb-4 text-3xl font-semibold">Your {TOKEN_NAME}</h2>
       <If
         condition={loading}
         then={
@@ -111,7 +112,7 @@ const LoggedIn = () => {
               </div>
             }
             else={
-              <h3 className="mt-10 text-xl">No {TOKEN_NAME} Claimed yet</h3>
+              <h3 className="mt-10 text-sm">No {TOKEN_NAME} Claimed yet</h3>
             }
           />
         }

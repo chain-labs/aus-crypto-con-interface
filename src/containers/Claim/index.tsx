@@ -99,7 +99,6 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
             else={<TicketsSection />}
           />
         </div>
-        d
       </div>
     </div>
   )

@@ -45,6 +45,7 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
   useBiconomyWallet({
     chainId: ethers.utils.hexValue(TEST_NETWORK ? 80001 : 137),
     network: TEST_NETWORK ? 'testnet' : 'mainnet',
+    whitelistUrls: {},
   })
 
   const wallet = useAppSelector(walletSelector)

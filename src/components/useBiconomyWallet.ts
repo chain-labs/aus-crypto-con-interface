@@ -12,10 +12,12 @@ import {
   setWalletUser,
   logoutUser,
 } from '@/redux/wallet'
+import { useRouter } from 'next/router'
 
 interface Configs {
   chainId: string
   network: 'testnet' | 'mainnet'
+  whitelistUrls?: any
 }
 
 const useBiconomyWallet = (options: Configs) => {
@@ -28,6 +30,8 @@ const useBiconomyWallet = (options: Configs) => {
   const [socialLoginSDK, setSocialLoginSDK] = useState<SocialLogin | null>(null)
 
   const dispatch = useAppDispatch()
+
+  const router = useRouter()
 
   const connectWeb3 = useCallback(
     async (SDK = socialLoginSDK) => {
@@ -106,20 +110,31 @@ const useBiconomyWallet = (options: Configs) => {
   }
 
   useEffect(() => {
-    if (!socialLoginSDK && connectWeb3 && disconnectWeb3) {
-      const sdk = new SocialLogin()
-      setSocialLoginSDK(sdk)
-      sdk.init(options).then((data) => {
-        console.log('initted', data)
-        dispatch(
-          setSDK({
-            sdk: sdk,
-            connect: connectWeb3,
-            disconnect: disconnectWeb3,
-          }),
-        )
-      })
+    const initSDK = async () => {
+      if (!socialLoginSDK && connectWeb3 && disconnectWeb3) {
+        const sdk = new SocialLogin()
+        setSocialLoginSDK(sdk)
+        console.log({ router: window.location.origin })
+        const sign = await sdk.whitelistUrl(`${window.location.origin}`)
+        options.whitelistUrls[window.location.origin] = sign
+        console.log({ options })
+        sdk
+          .init({
+            ...options,
+          })
+          .then((data) => {
+            console.log('initted', data)
+            dispatch(
+              setSDK({
+                sdk: sdk,
+                connect: connectWeb3,
+                disconnect: disconnectWeb3,
+              }),
+            )
+          })
+      }
     }
+    initSDK()
   }, [socialLoginSDK])
 
   useEffect(() => {

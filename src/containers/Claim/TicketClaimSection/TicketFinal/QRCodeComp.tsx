@@ -3,17 +3,17 @@ import React, { useEffect, useState } from 'react'
 import QRCode from 'react-qr-code'
 import Spinner from '../../components/Spinner'
 import LitJsSdk from '@lit-protocol/sdk-browser'
-import { useAuth } from '@arcana/auth-react'
 import { getNetwork, TOKEN_NAME } from '@/utils/constants'
-import { ethers } from 'ethers'
 import { utf8ToHex } from '../../utils'
 import { CONTRACT_ADDRESS } from '@/utils/constants_admin'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 const QRCodeComp = ({ qrData, tokenId }: { qrData: any; tokenId: string }) => {
   const [loading, setLoading] = useState(true)
   const [qrValue, setQrValue] = useState('')
 
-  const auth = useAuth()
+  const wallet = useAppSelector(walletSelector)
 
   const onImageDownload = () => {
     const svg = document.getElementById('QRCode')
@@ -66,14 +66,12 @@ const QRCodeComp = ({ qrData, tokenId }: { qrData: any; tokenId: string }) => {
   }
 
   const handleQrGenerate = async (details) => {
-    const concatenatedMessage = `${details?.emailid}-${auth.user.address}-${tokenId}-${CONTRACT_ADDRESS}`
+    const concatenatedMessage = `${details?.emailid}-${wallet.user.address}-${tokenId}-${CONTRACT_ADDRESS}`
 
     const message = utf8ToHex(concatenatedMessage)
     console.log({ concatenatedMessage, message })
 
-    const arcanaProvider = auth.provider
-    const provider = new ethers.providers.Web3Provider(arcanaProvider)
-    const signer = provider.getSigner()
+    const signer = wallet.provider?.getSigner()
     const signature = await signer.signMessage(message)
     const qrCodeData = {
       tokenId,

@@ -6,12 +6,15 @@ import FETCH_HOLDER_TICKETS, {
 import FETCH_REVEALED from '@/graphql/query/fetchRevealed'
 import { TOKEN_NAME } from '@/utils/constants'
 import { CONTRACT_ADDRESS } from '@/utils/constants_admin'
-import { useAuth } from '@arcana/auth-react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import Spinner from '../components/Spinner'
 import TicketModal from './TicketModal'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
+import { OpenEnvelope } from 'akar-icons'
+import UserWelcome from '../components/UserWelcome'
 
 const LoggedIn = () => {
   const [userTickets, setUserTickets] = useState<ITicket[]>([])
@@ -28,9 +31,8 @@ const LoggedIn = () => {
       variables: { address: CONTRACT_ADDRESS },
     })
 
-    const { data } = res
-    const isRevealed = !!data?.simplrEvents?.[0]?.isRevealed
-    const ticketURI = data?.simplrEvents?.[0]?.ticketURI
+    const isRevealed = !!res?.data?.simplrEvents?.[0]?.isRevealed
+    const ticketURI = res?.data?.simplrEvents?.[0]?.ticketURI
     const ticketCid = ticketURI?.split('//')[1]
     setTicketURI(`https://nftstorage.link/ipfs/${ticketCid}`)
     setRevealed(isRevealed)
@@ -40,7 +42,7 @@ const LoggedIn = () => {
     fetchRevealed().then(() => setLoading(false))
   }, [])
 
-  const auth = useAuth()
+  const wallet = useAppSelector(walletSelector)
 
   const getHolderTickets = async (address) => {
     const res = await client.query({
@@ -50,15 +52,15 @@ const LoggedIn = () => {
         first: 10,
       },
     })
-    const tickets = res.data?.holders?.[0]?.tickets
+    const tickets = res?.data?.holders?.[0]?.tickets
     setUserTickets(tickets)
   }
 
   useEffect(() => {
-    if (auth.user?.address) {
-      getHolderTickets(auth.user.address)
+    if (wallet.user?.address) {
+      getHolderTickets(wallet.user.address)
     }
-  }, [auth.user])
+  }, [wallet.user])
 
   useEffect(() => {
     if (typeof window != undefined) {
@@ -77,7 +79,8 @@ const LoggedIn = () => {
           />
         }
       />
-      <h2 className="mt-4 mb-4 text-3xl font-semibold">Your {TOKEN_NAME}</h2>
+      <UserWelcome />
+      <h2 className="mt-3 mb-4 text-3xl font-semibold">Your {TOKEN_NAME}</h2>
       <If
         condition={loading}
         then={
@@ -109,7 +112,7 @@ const LoggedIn = () => {
               </div>
             }
             else={
-              <h3 className="mt-10 text-xl">No {TOKEN_NAME} Claimed yet</h3>
+              <h3 className="mt-10 text-sm">No {TOKEN_NAME} Claimed yet</h3>
             }
           />
         }

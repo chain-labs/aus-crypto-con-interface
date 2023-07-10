@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { useAuth } from '@arcana/auth-react'
 import { ethers, providers } from 'ethers'
 import { ArrowCycle, ChevronRight, GoogleFill } from 'akar-icons'
 import If from '@/components/If'
 import { STEPS } from '../../constants'
 import Image from 'next/image'
 import { TOKEN_NAME } from '@/utils/constants'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import {
+  logoutUser,
+  setProvider,
+  setWalletUser,
+  walletSelector,
+} from '@/redux/wallet'
 
-const ConnectArcana = ({
+const ConnectWallet = ({
   setStep,
   subscribe,
   setSubscribe,
@@ -16,41 +22,56 @@ const ConnectArcana = ({
   subscribe: boolean
   setSubscribe: (boolean) => void
 }) => {
-  const auth = useAuth()
-
-  const [provider, setProvider] = useState<providers.Web3Provider>()
+  const wallet = useAppSelector(walletSelector)
+  const dispatch = useAppDispatch()
   const [signer, setSigner] = useState<providers.JsonRpcSigner>()
-  const [user, setUser] = useState<string>()
   const [loggingIn, setLoggingIn] = useState(false)
 
   const handleConnect = async (e) => {
     e.preventDefault()
     setLoggingIn(true)
-    const arcanaProvider = await auth.loginWithSocial('google')
-    const provider = new ethers.providers.Web3Provider(arcanaProvider)
-    const signer = provider.getSigner()
+    if (typeof window === 'undefined') return
+
+    const sdkProvider = wallet.SDK?.sdk?.provider
+    if (sdkProvider) {
+      const web3Provider = new ethers.providers.Web3Provider(sdkProvider)
+      const accounts = await web3Provider.listAccounts()
+      const userInfo = await wallet.SDK?.sdk?.getUserInfo()
+
+      const userDispatchItem = {
+        address: accounts[0],
+        email: userInfo.email,
+        name: userInfo.name,
+        profileImage: userInfo.profileImage,
+      }
+
+      dispatch(setWalletUser(userDispatchItem))
+      return
+    }
+    if (wallet.SDK.sdk) {
+      console.log('opening wallet')
+
+      wallet.SDK?.sdk?.showWallet()
+      return wallet.SDK?.sdk
+    }
+    const signer = wallet?.provider?.getSigner()
     setSigner(signer)
-    setProvider(provider)
+    setProvider(wallet?.provider)
   }
 
   const handleLogout = () => {
-    auth.logout()
+    dispatch(logoutUser())
+    localStorage.removeItem('openlogin_store')
+    localStorage.removeItem('Web3Auth-cachedAdapter')
     setProvider(null)
     setSigner(null)
-    setUser('')
   }
 
   useEffect(() => {
-    if (signer) {
-      signer.getAddress().then((user) => setUser(user))
-    }
-  }, [signer])
-
-  useEffect(() => {
-    if (user) {
+    if (wallet.user.address) {
       setLoggingIn(false)
     }
-  }, [user])
+  }, [wallet.user.address])
 
   useEffect(() => {
     console.log({ subscribe })
@@ -67,7 +88,7 @@ const ConnectArcana = ({
         </h4>
       </div>
       <If
-        condition={!user}
+        condition={!wallet.user.address}
         then={
           <React.Fragment>
             <div className="mb-2 flex">
@@ -119,9 +140,9 @@ const ConnectArcana = ({
               <div className="text-lg font-bold">
                 <span className="flex items-center rounded-full border bg-gray-200 px-4 py-2 text-sm font-semibold">
                   <div className="relative mr-2 h-8 w-8 overflow-hidden rounded-full">
-                    <Image src={auth?.user?.picture} fill alt="pfp" />
+                    <Image src={wallet?.user?.profileImage} fill alt="pfp" />
                   </div>
-                  {auth?.user?.email}
+                  {wallet?.user?.email}
                 </span>
               </div>
               <p className="float-right mr-2 text-sm font-medium">
@@ -151,4 +172,4 @@ const ConnectArcana = ({
   )
 }
 
-export default ConnectArcana
+export default ConnectWallet

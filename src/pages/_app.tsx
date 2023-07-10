@@ -46,7 +46,7 @@ export default function App({ Component, pageProps }: AppProps) {
           src="https://plausible.io/js/script.js"
         ></script>
 
-        <title>Simpr Events | {EVENT_NAME}</title>
+        <title>{`Simpr Events | ${EVENT_NAME}`}</title>
       </Head>
       <Component {...pageProps} />
     </>

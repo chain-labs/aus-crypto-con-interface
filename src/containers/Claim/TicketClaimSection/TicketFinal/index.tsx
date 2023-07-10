@@ -11,7 +11,6 @@ import {
   TWITTER_URL,
 } from '@/utils/constants'
 import { CONTRACT_ADDRESS } from '@/utils/constants_admin'
-import { useAuth } from '@arcana/auth-react'
 import { ArrowRight, TelegramFill, TwitterFill } from 'akar-icons'
 import axios from 'axios'
 import Image from 'next/image'
@@ -19,6 +18,8 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import Spinner from '../../components/Spinner'
 import QRCodeComp from './QRCodeComp'
+import { useAppSelector } from '@/redux/hooks'
+import { walletSelector } from '@/redux/wallet'
 
 const TicketFinal = ({ qrData }: { qrData: any }) => {
   const [generatingQR, setGeneratingQR] = useState(false)
@@ -27,7 +28,8 @@ const TicketFinal = ({ qrData }: { qrData: any }) => {
   const [ticketURI, setTicketURI] = useState('')
   const [tokenId, setTokenId] = useState('')
   const [loading, setLoading] = useState(true)
-  const auth = useAuth()
+
+  const wallet = useAppSelector(walletSelector)
   useEffect(() => {
     if (tokenId) {
       const setTicketDetails = async () => {
@@ -58,7 +60,7 @@ const TicketFinal = ({ qrData }: { qrData: any }) => {
     const tokenIdRes = await client.query({
       query: FETCH_HOLDER_TICKETS,
       variables: {
-        id: auth.user.address,
+        id: wallet.user.address,
         first: 1,
       },
     })

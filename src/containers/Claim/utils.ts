@@ -5,7 +5,12 @@ import axios from 'axios'
 import LitJsSdk from '@lit-protocol/sdk-browser'
 import { BytesLike, ethers } from 'ethers'
 import { QueryProps } from './types'
-import { RELAY_TASK_CHECK_ENDPOINT, SERVER_ENDPOINT } from '@/utils/constants'
+import {
+  RELAY_TASK_CHECK_ENDPOINT,
+  SERVER_ENDPOINT,
+  TEST_NETWORK,
+} from '@/utils/constants'
+import { WalletState } from '@/redux/wallet/types'
 
 export const FETCH_TREE_CID = async (id: string) => {
   const { data } = await client.query({
@@ -21,7 +26,8 @@ export const FETCH_TREE_CID = async (id: string) => {
 export const getMerkleHashes = async (cid: string) => {
   const url = `https://simplr.mypinata.cloud/ipfs/${cid}`
   const { data } = await axios.get(url)
-  return JSON.parse(Object.keys(data)[0])
+  const hashes = JSON.parse(Object.keys(data)[0])
+  return hashes
 }
 
 export const hashQueryData = (query) => {
@@ -47,12 +53,11 @@ export const verifyQueryDetails = async (query: QueryProps, cid: string) => {
   } else return false
 }
 
-export const getSignature = async (auth) => {
-  const provider = new ethers.providers.Web3Provider(auth.provider)
+export const getSignature = async (wallet: WalletState) => {
   const authSig = await LitJsSdk.signAndSaveAuthMessage({
-    web3: provider,
-    account: auth.user?.address,
-    chainId: 80001,
+    web3: wallet.provider,
+    account: wallet.user?.address,
+    chainId: TEST_NETWORK ? 80001 : 137,
   })
   return authSig
 }

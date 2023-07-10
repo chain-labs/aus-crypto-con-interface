@@ -23,6 +23,7 @@ const VerifyDetailsSection = ({
     if (query?.batchid) {
       FETCH_TREE_CID(query?.batchid).then((data) => {
         const hashCID = data?.batches?.[0]?.cid
+        console.log({ hashCID })
         if (hashCID) {
           verifyQueryDetails(query, hashCID).then((data) => {
             setVerified(data)

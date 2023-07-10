@@ -4,6 +4,7 @@ import { batchReducer } from './batch'
 import { verifyReducer } from './verify'
 import { networkReducer } from './network'
 import { userReducer } from './user/reducers'
+import { walletReducer } from './wallet'
 
 const makeStore = () =>
   configureStore({
@@ -12,6 +13,7 @@ const makeStore = () =>
       batch: batchReducer,
       verify: verifyReducer,
       network: networkReducer,
+      wallet: walletReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({ serializableCheck: false }),

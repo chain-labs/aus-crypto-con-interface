@@ -12,7 +12,6 @@ import {
   setWalletUser,
   logoutUser,
 } from '@/redux/wallet'
-import { useRouter } from 'next/router'
 
 interface Configs {
   chainId: string
@@ -23,15 +22,12 @@ interface Configs {
 const useBiconomyWallet = (options: Configs) => {
   const [provider, setProvider] = useState<any>()
   const [account, setAccount] = useState<string>()
-  const [userInfo, setUserInfo] = useState({})
   const [smartAccount, setSmartAccount] = useState<SmartAccount | null>(null)
   const [scwAddress, setScwAddress] = useState('')
   const [scwLoading, setScwLoading] = useState(false)
   const [socialLoginSDK, setSocialLoginSDK] = useState<SocialLogin | null>(null)
 
   const dispatch = useAppDispatch()
-
-  const router = useRouter()
 
   const connectWeb3 = useCallback(
     async (SDK = socialLoginSDK) => {
@@ -55,7 +51,7 @@ const useBiconomyWallet = (options: Configs) => {
         return
       }
       if (SDK) {
-        console.log('opening wallet')
+        console.log('Biconomy/Opening-Wallet')
 
         SDK?.showWallet()
         return SDK
@@ -70,7 +66,7 @@ const useBiconomyWallet = (options: Configs) => {
 
   // if wallet already connected close widget
   useEffect(() => {
-    console.log('hide wallet')
+    console.log('biconomy/hide-wallet')
     if (socialLoginSDK && socialLoginSDK.provider) {
       socialLoginSDK.hideWallet()
     }
@@ -92,9 +88,7 @@ const useBiconomyWallet = (options: Configs) => {
   }, [account, connectWeb3, socialLoginSDK])
 
   const disconnectWeb3 = async () => {
-    console.log('lugging oot')
     dispatch(logoutUser())
-
     if (!socialLoginSDK || !socialLoginSDK.web3auth) {
       console.error('Web3Modal not initialized.')
       return
@@ -114,16 +108,13 @@ const useBiconomyWallet = (options: Configs) => {
       if (!socialLoginSDK && connectWeb3 && disconnectWeb3) {
         const sdk = new SocialLogin()
         setSocialLoginSDK(sdk)
-        console.log({ router: window.location.origin })
         const sign = await sdk.whitelistUrl(`${window.location.origin}`)
         options.whitelistUrls[window.location.origin] = sign
-        console.log({ options })
         sdk
           .init({
             ...options,
           })
-          .then((data) => {
-            console.log('initted', data)
+          .then(() => {
             dispatch(
               setSDK({
                 sdk: sdk,

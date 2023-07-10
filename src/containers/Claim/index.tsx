@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import {
-  ARCANA_APP_ADDRESS,
   EVENT_LOGO,
   EVENT_URL,
   getNetwork,
@@ -11,7 +10,6 @@ import {
 import Image from 'next/image'
 import TicketClaimSection from './TicketClaimSection'
 import { QueryProps } from './types'
-import SocialLogin from '@biconomy/web3-auth'
 import '@biconomy/web3-auth/dist/src/style.css'
 import If from '@/components/If'
 import TicketsSection from './TicketsSection'
@@ -19,21 +17,7 @@ import useBiconomyWallet from '@/components/useBiconomyWallet'
 import { ethers } from 'ethers'
 import { useAppSelector } from '@/redux/hooks'
 import { walletSelector } from '@/redux/wallet'
-import UserWelcome from './components/UserWelcome'
 import { Wallet } from 'akar-icons'
-
-// const provider = new AuthProvider(`${ARCANA_APP_ADDRESS}`, {
-//   position: 'right',
-//   theme: 'light',
-//   alwaysVisible: true,
-//   network: TEST_NETWORK ? 'testnet' : 'mainnet',
-//   chainConfig: {
-//     chainId: getNetwork().chainId,
-//     rpcUrl: TEST_NETWORK
-//       ? 'https://rpc-mumbai.maticvigil.com/'
-//       : 'https://polygon-rpc.com',
-//   },
-// })
 
 const checkQuery = (query: QueryProps): boolean => {
   const { lastname, firstname, emailid, eventname, batchid } = query

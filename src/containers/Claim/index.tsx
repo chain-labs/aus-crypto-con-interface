@@ -49,19 +49,6 @@ const ClaimComponent = ({ query }: { query: QueryProps }) => {
       bg-slate-200
       `}
     >
-      <If
-        condition={!!wallet.provider}
-        then={
-          <div
-            className="fixed bottom-4 right-4 rounded-full bg-blue-700 px-4 py-4"
-            onClick={() => {
-              wallet.SDK.sdk.showWallet()
-            }}
-          >
-            <Wallet strokeWidth={2} size={36} />
-          </div>
-        }
-      />
       <div className="flex flex-1 flex-col pb-6">
         <div className="container flex items-center justify-between bg-white py-1 px-1 shadow-md sm:px-8 sm:py-2">
           <a

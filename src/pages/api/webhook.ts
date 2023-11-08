@@ -7,7 +7,7 @@ export default function handler(req, res) {
     json()(req, res, () => {
       //   const { name, email } = req.body // Access the request body
       console.log({ req: req.body })
-      Sentry.captureMessage('Found Event', {
+      Sentry.captureMessage(`Webhook ${JSON.stringify(req.body)}`, {
         tags: {
           body: req.body,
         },
